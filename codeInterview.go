@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -269,29 +270,112 @@ func rotLeft(a []int32, d int32) []int32 {
 
 }
 
-// func hourglassSum(arr [][]int32) int32 {
-// 	var maxHour int32 = -math.MaxInt32
-// 	var lenArr = len(arr)
-// 	for i := 1; i < (lenArr - 1); i++ {
-// 		for j := 0; j < lenArr; j++ {
-// 			// 1, 2, 3    [i-1, j-1] [i-1,j] [i+1, j+1]
-// 			// 4, 5, 6        _      [i,j]     _
-// 			// 7, 8, 9   [i+1,j-1] [i+1, j] [i+1, j+1]
+func minimumBribes(q []int32) {
+	// Write your code here
 
-// 			if (i-1 >= 0 && j-1 >= 0) && (i-1 >= 0) && (i+1 < lenArr && j+1 < lenArr) &&
-// 				(i+1 < lenArr && j-1 >= 0) && (i+1 < lenArr) && (i+1 < lenArr && j+1 < lenArr) {
-// 				currentMaxHour := arr[i-1][j-1] + arr[i-1][j] + arr[i-1][j+1] +
-// 					arr[i][j] + arr[i+1][j-1] + arr[i+1][j] + arr[i+1][j+1]
+	// bribes := make(map[int]int)
+	bribes := 0
+	for i := len(q) - 1; i >= 0; i-- {
+		if q[i] == int32(i+1) {
+			continue
+		} else {
+			if i-1 >= 0 {
+				fmt.Println("Testing waters...", q[i], int32(i-1), q[i]-int32(i-1))
+				if int32(i-1)-q[i] < 0 {
+					bribes++
+				}
+			}
 
-// 				if currentMaxHour > maxHour {
-// 					maxHour = currentMaxHour
-// 				}
-// 			}
+			// fmt.Println("How many this guy bribe", q[i], "[", i, "]", " was : ", len(q)-i)
+		}
+	}
+	fmt.Println("Too chaotic", bribes)
+}
 
-// 		}
-// 	}
-// 	return maxHour
-// }
+func minimumDistances(a []int32) int32 {
+	type Dist struct {
+		FirstIndex int32
+		LastIndex  int32
+		Dist       int32
+	}
+	if len(a) == 0 || len(a) == 1 {
+		return -1
+	}
+
+	distMap := make(map[int32]Dist)
+	min := int32(-1)
+	for cI, val := range a {
+		trueIndex := int32(cI) + 1
+		if distMap[val].FirstIndex == 0 {
+			distMap[val] = Dist{
+				FirstIndex: trueIndex,
+				LastIndex:  trueIndex,
+				Dist:       0,
+			}
+		} else {
+			if (trueIndex - 1) >= distMap[val].LastIndex {
+				cp := distMap[val]
+				cp.LastIndex = trueIndex
+				cp.Dist = cp.LastIndex - cp.FirstIndex
+				distMap[val] = cp
+
+				if min == -1 || cp.Dist <= min {
+					min = cp.Dist
+				}
+			}
+		}
+	}
+	return min
+}
+
+func isSubsequence(s string, t string) bool {
+	i := 0
+	j := 0
+	for i < len(s) && j < len(t) {
+		if string(t[j]) == string(s[i]) {
+			i++
+		}
+
+		j++
+	}
+	return i == len(s)
+}
+
+func isHappy(n int) bool {
+	if n <= 0 {
+		return false
+	}
+
+	sn := strconv.Itoa(n)
+
+	isRepeated := make(map[int]bool)
+
+	sum := 0
+	nextString := sn
+	for {
+		sum = 0
+		for _, v := range nextString {
+			nv, _ := strconv.Atoi(string(v))
+			sum += nv * nv
+		}
+		nextSum := fmt.Sprintf("%d", sum)
+		fmt.Println("nextString", nextString, "sum:", nextSum)
+		if isRepeated[sum] || (n > 1 && sum == n) {
+			return false
+		}
+
+		isRepeated[sum] = true
+		if sum == 1 {
+			return true
+		}
+
+		if nextSum == nextString {
+			return false
+		}
+		nextString = nextSum
+	}
+
+}
 
 func twoStrings(s1 string, s2 string) string {
 	// Write your code here
